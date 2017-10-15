@@ -27,8 +27,8 @@ public class ArrayListeTest {
 		assertNotNull(arrayListeUnderTest);
 		arrayListeUnderTest = new ArrayListe<Double>();
 		assertNotNull(arrayListeUnderTest);
-		arrayListeUnderTest = new ArrayListe<Object>();
-		assertNotNull(arrayListeUnderTest);
+		//arrayListeUnderTest = new ArrayListe< Object>();
+		//assertNotNull(arrayListeUnderTest);
 	}
 	
 	/**
@@ -144,6 +144,15 @@ public class ArrayListeTest {
 		arrayListeUnderTest.hinzufeuegen("TEST4");
 		assertFalse(Main.firstIsNumber(arrayListeUnderTest));
 		
+	}
+	
+	@Test
+	public void getkleinstesElementTest() {
+		arrayListeUnderTest = new ArrayListe<Integer>();
+		arrayListeUnderTest.hinzufeuegen(new Integer(1));
+		arrayListeUnderTest.hinzufeuegen(new Integer(3));
+		arrayListeUnderTest.hinzufeuegen(new Integer(7));
+		assertEquals(1, arrayListeUnderTest.getKleinstesElement());
 	}
 	
 

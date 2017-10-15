@@ -5,7 +5,7 @@ package aufgabe12;
  *
  * @param <T> Parameter der Liste
  */
-public class ArrayListe<T>{
+public class ArrayListe<T extends Comparable<T>>{
 	//HilfsConstanten
 	private static final String TAG = ArrayListe.class.getSimpleName();
 	
@@ -119,9 +119,18 @@ public class ArrayListe<T>{
 	 * gibt das kleinse Element zurück
 	 * @return
 	 */
-	public T getKleinstesElement() {
+	public <T extends Comparable<T>>T getKleinstesElement() {
+		Comparable object = (Comparable) elemente[0];
+		for(int i =0; i<elemente.length; i++) {
+			Comparable object2 = (Comparable) elemente[i];
+			if(object2 != null) {
+			if(object2.compareTo(object)<0) {
+				object = object2;
+			}
+			}
+		}
 		
-		return null;
+		return (T) object;
 	}
 	
 	
