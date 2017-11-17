@@ -87,6 +87,12 @@ public class Flugzeug implements Runnable {
 		}
 	}
 
+	
+	
+	public FlugStatus getStatus() {
+		return status;
+	}
+
 	/**
 	 * To String Methode für die Ausgabe des Programms
 	 */
