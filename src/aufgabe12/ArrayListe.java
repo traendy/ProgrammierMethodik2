@@ -119,7 +119,7 @@ public class ArrayListe<T extends Comparable<T>>{
 	 * gibt das kleinse Element zurück
 	 * @return
 	 */
-	public <T extends Comparable<T>>T getKleinstesElement() {
+	public <T extends Comparable<? super T>>T getKleinstesElement() {
 		Comparable object = (Comparable) elemente[0];
 		for(int i =0; i<elemente.length; i++) {
 			Comparable object2 = (Comparable) elemente[i];

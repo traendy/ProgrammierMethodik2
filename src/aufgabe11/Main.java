@@ -44,9 +44,7 @@ public class Main {
 	 */
 	public static void main(String [] args) {
 		String path = "sensortest.xml";
-		if(!args.equals("")) {
-			path = args[0];
-		}
+	
 		
 		String path2 = "mySensor.xml";
 		Sensor sensor= null;
@@ -116,7 +114,7 @@ public class Main {
 		rootElement.setAttributeNode(idAttr);
 		
 		/*
-		 * Durchghen der Liste des Senors und Erstellung der Messungen mit ihren Attributen
+		 * Durchgehen der Liste des Senors und Erstellung der Messungen mit ihren Attributen
 		 */
 		for(Messung m : sensor.getMessungen()) {
 			// Child Element Messung
@@ -163,10 +161,9 @@ public class Main {
 		
 		//Initialisieren des Builders
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder;
-		builder = factory.newDocumentBuilder();
+		DocumentBuilder builder = factory.newDocumentBuilder();
 		
-		//Parsen der XNL Datei
+		//Parsen der XML Datei
 		Document document = builder.parse(new File(path));
 		
 		//Holen des Wurzel Elements
