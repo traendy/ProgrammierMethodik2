@@ -27,7 +27,7 @@ public class Main {
 		for (int i = 0; i < NUMBER_OF_PLANES; i++) {
 			FlugzeugListe.add(new Flugzeug(System.currentTimeMillis()));
 		}
-		Flughafen flughafen = new Flughafen(Collections.synchronizedList(FlugzeugListe));
+		Flughafen flughafen = new Flughafen(FlugzeugListe);
 		Thread t = new Thread(flughafen);
 		t.start();
 	}
