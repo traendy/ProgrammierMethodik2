@@ -1,15 +1,23 @@
 package aufgabe3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
 
 	public static void main(String[] args) {
 
 		RangierBahnhof bahnhof = new RangierBahnhof();
-		Lokfuehrer lokfuehrer = new Lokfuehrer(bahnhof);
 		
+		List<Lokfuehrer> lokfuehrere = new ArrayList<>();
 		
-		Thread t = new Thread(lokfuehrer);
-		t.run();
+		for (int i = 0; i < 10; i++) {
+			lokfuehrere.add(new Lokfuehrer(bahnhof));
+		}
+		
+		for (Lokfuehrer lokfuehrer : lokfuehrere) {
+			lokfuehrer.start();
+		}
 	}
 
 }

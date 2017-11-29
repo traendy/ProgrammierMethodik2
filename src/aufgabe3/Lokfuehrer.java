@@ -16,7 +16,7 @@ public class Lokfuehrer extends Thread{
 		//wähle eine von zwei Aufgaben
 		
 		
-		switch(r.nextInt(1)) {
+		switch(r.nextInt(2)) {
 			case 0:
 				bahnhof.zugEinfahren(bahnhof.new Zug() , r.nextInt(4));
 				break;
@@ -26,7 +26,11 @@ public class Lokfuehrer extends Thread{
 			default:
 				break;
 			}
-			System.out.println(bahnhof.toString());
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		
 	}
 	

@@ -12,20 +12,22 @@ public class RangierBahnhof {
 	}
 	
 	
-	public void zugEinfahren(Zug zug, int gleisNummer ) {
+	public synchronized void zugEinfahren(Zug zug, int gleisNummer ) {
 		if(gleise[gleisNummer] == null) {
 			gleise[gleisNummer] = zug;
 		}
 		
 		System.out.println("Lokfuehrer mit Zug " + zug.hashCode() + " fahrt in Gleis " + gleisNummer + " ein. \n");
+		System.out.println(this.toString());
 		
 	}
 	
-	public Zug zugAusfahren(int gleisNummer) {
+	public synchronized Zug zugAusfahren(int gleisNummer) {
 		if(gleise[gleisNummer] != null) {
 			Zug ausgefahreneZug = gleise[gleisNummer];
 			gleise[gleisNummer] = null;
 			System.out.println("Lokfuehrer mit Zug " + ausgefahreneZug.hashCode() + " fahrt in Gleis " + gleisNummer + " aus. \n");
+			System.out.println(this.toString());
 			return ausgefahreneZug;
 		}
 		return null;
