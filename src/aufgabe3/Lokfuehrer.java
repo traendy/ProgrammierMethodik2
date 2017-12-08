@@ -12,9 +12,7 @@ public class Lokfuehrer extends Thread{
 	}
 
 	@Override
-	public void run() {
-		//wähle eine von zwei Aufgaben
-		
+	public void run() {		
 		
 		switch(r.nextInt(2)) {
 			case 0:
