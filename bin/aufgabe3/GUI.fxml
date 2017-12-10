@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+ fx:controller="GUIController">
+   <bottom>
+      <TextFlow prefHeight="93.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <TextArea id="textArea" prefHeight="97.0" prefWidth="601.0" />
+         </children>
+      </TextFlow>
+   </bottom>
+   <left>
+      <VBox id="vboxlinks" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <Rectangle id="rectRed" arcHeight="5.0" arcWidth="5.0" fill="#b20000" height="38.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+         </children>
+      </VBox>
+   </left>
+   <right>
+      <VBox id="vboxrechts" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <Rectangle id="rectGreen" arcHeight="5.0" arcWidth="5.0" fill="#55cd4f" height="41.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+         </children>
+      </VBox>
+   </right>
+   <center>
+      <Pane id="pane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Rectangle id="rectYellow" arcHeight="5.0" arcWidth="5.0" fill="#f3ff14" height="44.0" layoutY="49.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+         </children>
+      </Pane>
+   </center>
+   <top>
+      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Text id="TopTextFeld" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+            <Button id="StartButton" mnemonicParsing="false" text="Button" />
+            <Button id="REsetButton" mnemonicParsing="false" text="Button" />
+         </children>
+      </HBox>
+   </top>
+</BorderPane>

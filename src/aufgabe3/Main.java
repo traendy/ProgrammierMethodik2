@@ -3,7 +3,9 @@ package aufgabe3;
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		RangierBahnhof bahnhof = new RangierBahnhof();
+		Thread thread = new Thread(bahnhof);
+		thread.start();
 
 	}
 
