@@ -1,6 +1,7 @@
 package aufgabe3;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -29,6 +30,15 @@ public class RangierBahnhof extends Task<Object> {
 	private static Object gleis = new Object();
 	private String ausgabe = "";
 
+	// Puffer
+	private final List<Zug> puffer;
+
+	/**
+	 * Aktuelle Anzahl von ELementen im Puffer.
+	 */
+	@SuppressWarnings("unused")
+	private int anzahlElemente = 0;
+
 	// GUI element
 	private final GridPane grid;
 
@@ -39,6 +49,13 @@ public class RangierBahnhof extends Task<Object> {
 	 *            Gridpane das den Bahnhof darstellt
 	 */
 	public RangierBahnhof(GridPane grid) {
+		puffer = new ArrayList<>();
+		anzahlElemente = 0;
+
+		for (int i = 0; i < GLEIS_ANZAHL; i++) {
+			puffer.add(null);
+		}
+
 		gleise = new Zug[GLEIS_ANZAHL];
 		this.grid = grid;
 	}
@@ -54,32 +71,44 @@ public class RangierBahnhof extends Task<Object> {
 	 * @param id
 	 *            id des Lokführers für die Ausgabe
 	 */
-	public void zugEinfahren(Zug zug, int gleisNummer, long id) {
-
+	public /* synchronized */void zugEinfahren(Zug zug, int gleisNummer, long id) {
+		/*
+		 * while (anzahlElemente == puffer.size() && puffer.get(gleisNummer)!=null) {
+		 * try { this.wait(); } catch (InterruptedException e) {
+		 * Thread.currentThread().interrupt(); return; } }
+		 * 
+		 * puffer.set(anzahlElemente, zug);
+		 * 
+		 * ausgabe = "Zug wurde auf Gleis: " + gleisNummer + " durch " + id +
+		 * " abgestellt."; try { Thread.sleep(500); } catch (InterruptedException e) { }
+		 * System.out.println(ausgabe); updateGridPane(-1); anzahlElemente++;
+		 * 
+		 * System.err.println("---\nNeuer Pufferinhalt: " + this); this.notifyAll();
+		 */
 		synchronized (gleis) {
-			boolean done = false;
-			
-			while (!done) {
-				if (gleise[gleisNummer] == null) {
-					done = true;
-					gleise[gleisNummer] = zug;
 
-					ausgabe = "Zug wurde auf Gleis: " + gleisNummer + " durch " + id + " abgestellt.";
-					System.out.println(ausgabe);
-
-					updateGridPane(-1);
-					//Monitor benachrichtigen
-					gleis.notify();
+			while (gleise[gleisNummer] != null) {
+				try {
+					gleis.wait();
+				} catch (InterruptedException e) {
 					return;
-				} else {
-					done = false;
-					try {
-						gleis.wait();
-					} catch (InterruptedException e) {
-						return;
-					}
 				}
 			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+			gleise[gleisNummer] = zug;
+
+			ausgabe = "Zug wurde auf Gleis: " + gleisNummer + " durch " + id + " abgestellt.";
+			System.out.println(ausgabe);
+
+			updateGridPane(-1);
+			// Monitor benachrichtigen
+			gleis.notify();
+			return;
+
 			// this.getClass().notify();
 		}
 
@@ -96,36 +125,48 @@ public class RangierBahnhof extends Task<Object> {
 	 *            Kennnummer des Lokführers
 	 * @return Zug den der Lokführer aus dem Bahnhof geholt hat
 	 */
-	public Zug zugAusfahren(int gleisNummer, long id) {
+	public /* synchronized */ Zug zugAusfahren(int gleisNummer, long id) {
+		/*
+		 * while (anzahlElemente == 0 && puffer.get(gleisNummer) == null) { try {
+		 * this.wait(); } catch (InterruptedException e) {
+		 * Thread.currentThread().interrupt(); return null; } } Zug zug =
+		 * puffer.get(anzahlElemente - 1); anzahlElemente--; ausgabe =
+		 * "Zug wurde von Gleis: " + gleisNummer + " durch " + id + " entfernt."; try {
+		 * Thread.sleep(500); } catch (InterruptedException e) { }
+		 * System.out.println(ausgabe); updateGridPane(gleisNummer);
+		 * 
+		 * System.err.println("Neuer Pufferinhalt: " + this);
+		 * 
+		 * this.notifyAll(); return zug;
+		 */
 
 		synchronized (gleis) {
-			boolean done = false;
-			while (!done) {
-				if (gleise[gleisNummer] != null) {
-					done = true;
-					ausgabe = "Zug wurde von Gleis: " + gleisNummer + " durch " + id + " entfernt.";
 
-					System.out.println(ausgabe);
-					gleise[gleisNummer] = null;
-
-					updateGridPane(gleisNummer);
-					//Monitor benachrichtigen
-					gleis.notify();
-					return gleise[gleisNummer];
-				} else {
-					done = false;
-					try {
-						gleis.wait();
-					} catch (InterruptedException e) {
-						return null;
-					}
+			while (gleise[gleisNummer] == null) {
+				try {
+					gleis.wait();
+				} catch (InterruptedException e) {
+					return null;
 				}
 			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+			ausgabe = "Zug wurde von Gleis: " + gleisNummer + " durch " + id + " entfernt.";
+
+			System.out.println(ausgabe);
+			gleise[gleisNummer] = null;
+
+			updateGridPane(gleisNummer);
+			// Monitor benachrichtigen
+			gleis.notify();
+			return gleise[gleisNummer];
+
 			// this.getClass().notify();
 
 		}
-
-		return gleise[gleisNummer];
 
 	}
 
@@ -158,8 +199,9 @@ public class RangierBahnhof extends Task<Object> {
 	 * Updated das Gridpane, das den Bahnhof darstellt
 	 * 
 	 * @param gleisnummer
-	 *            abhängig von der Gleisnummer wird der Bahnhof gezeichnet
-	 *            (-1) Zug wurder eingefahren ansonsten (n) Gleisnummer n an der der neue Zug wartet
+	 *            abhängig von der Gleisnummer wird der Bahnhof gezeichnet (-1) Zug
+	 *            wurder eingefahren ansonsten (n) Gleisnummer n an der der neue Zug
+	 *            wartet
 	 */
 	private void updateGridPane(int gleisnummer) {
 
@@ -167,7 +209,7 @@ public class RangierBahnhof extends Task<Object> {
 		Platform.runLater(() -> {
 
 			int i = 0;
-			//Zug wurde ausgefahren und wird auf das Gleis gestellt
+			// Zug wurde ausgefahren und wird auf das Gleis gestellt
 			if (gleisnummer > 0) {
 				StackPane stackPane = new StackPane();
 				Rectangle r = new Rectangle();
@@ -208,14 +250,16 @@ public class RangierBahnhof extends Task<Object> {
 	}
 
 	/**
-	 * Hilfsmethode
-	 * Gibt eine Liste mit allen GLeisen zurück abh. ob es Besetzt ist oder nicht
-	 * @return Liste mit "leer" wenn in dem Array kein Zug ist, ansonsten "Zug"+GLeisnummer
+	 * Hilfsmethode Gibt eine Liste mit allen GLeisen zurück abh. ob es Besetzt ist
+	 * oder nicht
+	 * 
+	 * @return Liste mit "leer" wenn in dem Array kein Zug ist, ansonsten
+	 *         "Zug"+GLeisnummer
 	 */
 	public ArrayList<String> getGleise() {
 		ArrayList<String> zuege = new ArrayList<String>();
 		for (int i = 0; i < GLEIS_ANZAHL; i++) {
-			if (gleise[i] != null) {
+			if (gleise[i]/* puffer.get(i) */ != null) {
 				zuege.add("Zug " + i);
 			} else {
 				zuege.add("leer");
@@ -226,7 +270,9 @@ public class RangierBahnhof extends Task<Object> {
 
 	/**
 	 * Setter für das Gleisarray
-	 * @param gleise Array von Zügen
+	 * 
+	 * @param gleise
+	 *            Array von Zügen
 	 */
 	public void setGleise(Zug[] gleise) {
 		this.gleise = gleise;
