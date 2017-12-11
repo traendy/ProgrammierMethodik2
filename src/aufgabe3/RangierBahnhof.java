@@ -2,34 +2,27 @@ package aufgabe3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
-import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 /**
  * Rangierbahnhofklasse Als Task implementiert Der Randgierbahnhof erstellt
- * allle 500ms einen neuen LokfÃ¼hrer, der dort arbeitet AuÃŸerdem kÃ¼mmert sich
+ * allle 500ms einen neuen Lokführer, der dort arbeitet AuÃŸerdem kÃ¼mmert sich
  * der Bahnhof darum, dass immer nur ein Gleis benutzt werden kann.
  * 
  * @author speters
  *
  */
-public class RangierBahnhof extends Task<Object> {
+public class RangierBahnhof extends Observable implements Runnable {
 	// Anzahl der Gleise
 	public static final int GLEIS_ANZAHL = 10;
-	// Array mit ZÃ¼gen
+	// Array mit Zügen
 	private Zug[] gleise;
-
+	private int gleisNummer;
 	// Hilfsvariablen
 	private int counts = 0;
 	private static Object gleis = new Object();
 	private String ausgabe = "";
-
 	// Puffer
 	private final List<Zug> puffer;
 
@@ -39,16 +32,14 @@ public class RangierBahnhof extends Task<Object> {
 	@SuppressWarnings("unused")
 	private int anzahlElemente = 0;
 
-	// GUI element
-	private final GridPane grid;
-
 	/**
 	 * Konstruktor
 	 * 
 	 * @param grid
 	 *            Gridpane das den Bahnhof darstellt
 	 */
-	public RangierBahnhof(GridPane grid) {
+	public RangierBahnhof() {
+		
 		puffer = new ArrayList<>();
 		anzahlElemente = 0;
 
@@ -57,7 +48,7 @@ public class RangierBahnhof extends Task<Object> {
 		}
 
 		gleise = new Zug[GLEIS_ANZAHL];
-		this.grid = grid;
+
 	}
 
 	/**
@@ -69,7 +60,7 @@ public class RangierBahnhof extends Task<Object> {
 	 * @param gleisNummer
 	 *            Position an der der Zug einfahren soll
 	 * @param id
-	 *            id des LokfÃ¼hrers fÃ¼r die Ausgabe
+	 *            id des Lokführers für die Ausgabe
 	 */
 	public /* synchronized */void zugEinfahren(Zug zug, int gleisNummer, long id) {
 		/*
@@ -104,9 +95,12 @@ public class RangierBahnhof extends Task<Object> {
 			ausgabe = "Zug wurde auf Gleis: " + gleisNummer + " durch " + id + " abgestellt.";
 			System.out.println(ausgabe);
 
-			updateGridPane(-1);
+			// updateGridPane(-1);
+			setGleisNummer(-1);
+			setChanged();
+			notifyObservers();
 			// Monitor benachrichtigen
-			gleis.notify();
+			gleis.notifyAll();
 			return;
 
 			// this.getClass().notify();
@@ -120,10 +114,10 @@ public class RangierBahnhof extends Task<Object> {
 	 * Bahnhof ausgefahren.
 	 * 
 	 * @param gleisNummer
-	 *            Position des Arrays an der der LokfÃ¼hrer auf den Zug wartet
+	 *            Position des Arrays an der der Lokführer auf den Zug wartet
 	 * @param id
-	 *            Kennnummer des LokfÃ¼hrers
-	 * @return Zug den der LokfÃ¼hrer aus dem Bahnhof geholt hat
+	 *            Kennnummer des Lokführers
+	 * @return Zug den der Lokführer aus dem Bahnhof geholt hat
 	 */
 	public /* synchronized */ Zug zugAusfahren(int gleisNummer, long id) {
 		/*
@@ -158,10 +152,12 @@ public class RangierBahnhof extends Task<Object> {
 
 			System.out.println(ausgabe);
 			gleise[gleisNummer] = null;
-
-			updateGridPane(gleisNummer);
+			setGleisNummer(gleisNummer);
+			// updateGridPane(gleisNummer);
+			setChanged();
+			notifyObservers();
 			// Monitor benachrichtigen
-			gleis.notify();
+			gleis.notifyAll();
 			return gleise[gleisNummer];
 
 			// this.getClass().notify();
@@ -174,9 +170,8 @@ public class RangierBahnhof extends Task<Object> {
 	 * Call Methode des Tasks Alle 500 ms wird ein neuer Lokfuehrer erstellt und
 	 * gestartet
 	 */
-
 	@Override
-	public Object call() {
+	public void run() {
 		while (true) {
 			System.out.println(counts);
 			counts++;
@@ -196,61 +191,14 @@ public class RangierBahnhof extends Task<Object> {
 	}
 
 	/**
-	 * Updated das Gridpane, das den Bahnhof darstellt
-	 * 
-	 * @param gleisnummer
-	 *            abhÃ¤ngig von der Gleisnummer wird der Bahnhof gezeichnet (-1) Zug
-	 *            wurder eingefahren ansonsten (n) Gleisnummer n an der der neue Zug
-	 *            wartet
-	 */
-	private void updateGridPane(int gleisnummer) {
-
-		System.out.println("update Grid");
-		Platform.runLater(() -> {
-
-			int i = 0;
-			// Zug wurde ausgefahren und wird auf das Gleis gestellt
-			if (gleisnummer > 0) {
-				StackPane stackPane = new StackPane();
-				Rectangle r = new Rectangle();
-				r.setHeight(30);
-				r.setWidth(60);
-				r.setFill(Color.DARKSEAGREEN);
-
-				stackPane.getChildren().addAll(r, new Label("Zug " + gleisnummer));
-				grid.add(stackPane, 3, 1);
-
-			}
-			// NeuZeichnen aller eingefahrenen ZÃ¼ge
-			for (String s : getGleise()) {
-
-				StackPane stackPane = new StackPane();
-				Rectangle r = new Rectangle();
-				r.setHeight(30);
-				r.setWidth(60);
-				if (s.equals("leer")) {
-					r.setFill(Color.GAINSBORO);
-				} else {
-					r.setFill(Color.BURLYWOOD);
-				}
-
-				stackPane.getChildren().addAll(r, new Label(s));
-				grid.add(stackPane, 1, i);
-				i++;
-			}
-		});
-
-	}
-
-	/**
-	 * Hilfsmethode fÃ¼r die Konsolenausgabe
+	 * Hilfsmethode für die Konsolenausgabe
 	 */
 	public String toString() {
 		return ausgabe;
 	}
 
 	/**
-	 * Hilfsmethode Gibt eine Liste mit allen GLeisen zurÃ¼ck abh. ob es Besetzt ist
+	 * Hilfsmethode Gibt eine Liste mit allen GLeisen zurück abh. ob es Besetzt ist
 	 * oder nicht
 	 * 
 	 * @return Liste mit "leer" wenn in dem Array kein Zug ist, ansonsten
@@ -269,13 +217,33 @@ public class RangierBahnhof extends Task<Object> {
 	}
 
 	/**
-	 * Setter fÃ¼r das Gleisarray
+	 * Setter für das Gleisarray
 	 * 
 	 * @param gleise
-	 *            Array von ZÃ¼gen
+	 *            Array von Zügen
 	 */
 	public void setGleise(Zug[] gleise) {
 		this.gleise = gleise;
+	}
+
+	/**
+	 * Getter für das Gleisarray
+	 * 
+	 * @param gleisNummer
+	 *            Gleis Nummer
+	 */
+	public int getGleisNummer() {
+		return gleisNummer;
+	}
+
+	/**
+	 * Setter für das Gleisarray
+	 * 
+	 * @param gleisNummer
+	 *            Gleis Nummer
+	 */
+	public void setGleisNummer(int gleisNummer) {
+		this.gleisNummer = gleisNummer;
 	}
 
 	/**
