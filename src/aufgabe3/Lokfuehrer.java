@@ -15,24 +15,22 @@ public class Lokfuehrer extends Thread{
 
 	@Override 
 	public void run() {
-		//wähle eine von zwei Aufgaben
-		boolean fertig = false;
-		while(!fertig) {
+	
 		int aufgabenWahl = r.nextInt(2);
 		switch(aufgabenWahl) {
 		case 0:
-			bahnhof.zugEinfahren(bahnhof.new Zug(), r.nextInt(anzahlDerGleise));
-			fertig = true;
+			bahnhof.zugEinfahren(bahnhof.new Zug(), r.nextInt(anzahlDerGleise), this.getId());
+			
 			break;
 		case 1:
-			bahnhof.zugAusfahren(r.nextInt(anzahlDerGleise));
-			fertig = true;
+			bahnhof.zugAusfahren(r.nextInt(anzahlDerGleise), this.getId());
+		
 			break;
 		default:
 			System.out.println("falscher Random wert: int aufgabenWahl = " + aufgabenWahl);
 			break;
 		}
-		}
+		
 		
 	}
 	
